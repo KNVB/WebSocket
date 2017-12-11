@@ -1,5 +1,15 @@
 package com;
 
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+
+
+
+
+
+import javax.crypto.Cipher;
+
 import com.util.MessageCoder;
 import com.util.RSA;
 import com.util.Utility;
@@ -10,6 +20,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import org.apache.logging.log4j.*;
+import org.bouncycastle.util.encoders.Base64;
 
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame>
@@ -24,14 +35,15 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 	public void channelActive(ChannelHandlerContext ctx)
             throws java.lang.Exception
     {
-		keyCoder = new RSA(1024);
+		/*keyCoder = new RSA(1024);
 		messageCoder=new MessageCoder();
 		String messageKey=Utility.byteArrayToHexString(keyCoder.encode(messageCoder.key.getBytes()));
 		String ivText=Utility.byteArrayToHexString(keyCoder.encode(messageCoder.ivText.getBytes()));
 		logger.debug("messageKey={}",messageCoder.key);
 		logger.debug("ivText={}",messageCoder.ivText);
+		returnCoder="keyCoder=new KeyCoder(\""+keyCoder.getPublicExponent()+"\",\"\",\""+keyCoder.getPublicModulus()+"\");";
 		//returnCoder="keyDecoder=new KeyCoder(\"\",\""+keyCoder.getPrivateExponent()+"\",\""+keyCoder.getPublicModulus()+"\");";
-		returnCoder="coder=new Coder(\""+messageKey+"\",\""+ivText+"\",\""+keyCoder.getPrivateExponent()+"\",\""+keyCoder.getPublicModulus()+"\");";
+		//returnCoder="coder=new Coder(\""+messageKey+"\",\""+ivText+"\",\""+keyCoder.getPrivateExponent()+"\",\""+keyCoder.getPublicModulus()+"\");";*/
     }
 	@Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
@@ -48,7 +60,23 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 	{
 		request = ((TextWebSocketFrame) frame).text();
         logger.debug("{} received {}|", ctx.channel(),request);
-        if (request.equals("Hello"))
+        if (isFirstConnect)
+        {
+        	messageCoder=new MessageCoder();
+        	String messageKey=messageCoder.key;
+    		String ivText=messageCoder.ivText;
+    		logger.debug("messageKey={}",messageKey);
+    		logger.debug("ivText={}",ivText);
+    		Cipher rsaCipher;
+    		rsaCipher = Cipher.getInstance("RSA");
+    		byte[] publicBytes = Base64.decode(request);
+    		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+    		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    		rsaCipher.init(Cipher.ENCRYPT_MODE,keyFactory.generatePublic(keySpec));
+    		//byte[] ciphertext = rsaCipher.doFinal(data);
+    		
+        }
+        /*if (request.equals("Hello"))
         {
 			if (isFirstConnect)
 			{	
@@ -62,11 +90,11 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         }
         else
         {
-        	responseString=messageCoder.decode(request);
+        	responseString=new String(keyCoder.decode(request.getBytes("UTF-8")),"UTF-8");
         	logger.debug("Decoded text:"+responseString);
-        	responseString=messageCoder.encode(responseString);
+        	/*responseString=messageCoder.encode(responseString);
         	ctx.channel().writeAndFlush(new TextWebSocketFrame(responseString));
-        }
+        }*/
 	}
 	/**
 	 * Calls ChannelHandlerContext.fireExceptionCaught(Throwable) to forward to the next ChannelHandler in the ChannelPipeline. Sub-classes may override this method to change behavior.

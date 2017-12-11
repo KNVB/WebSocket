@@ -1,17 +1,18 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<script language="JavaScript" src="js/BigInt.js"></script>
-		<script language="JavaScript" src="js/Barrett.js"></script>
-		<script language="JavaScript" src="js/RSA.js"></script>
-		<script language="JavaScript" src="js/KeyCoder.js"></script>
-		<script language="JavaScript" src="js/Utility.js"></script>
-		<script src="js/cryptojs/rollups/aes.js"></script>
-		<script src="js/cryptojs/components/mode-ctr-min.js"></script>
-		<script src="js/cryptojs/components/pad-nopadding.js"></script>
+	  	<script language="JavaScript" type="text/javascript" src="js/cryptico/jsbn.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/cryptico/random.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/cryptico/hash.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/cryptico/rsa.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/cryptico/aes.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/cryptico/api.js"></script>
 		<script language=javascript>
 			var ws = null;
 			var coder=null;
+			var keyCoder=null;
+			var secretPassphrase="";
+			var messageKey,iv;
 			var isFirstConnect=true;
 			function connect()
 			{
@@ -29,76 +30,45 @@
 			}
 			function sendGreetingMessage()
 			{
-				 ws.send("Hello");
+				// ws.send("Hello");
+				 var PassPhrase =(new Date()).toString();
+				// The length of the RSA key, in bits.
+				 var Bits = 1024; 
+				 var myRSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
+				 var publicKeyString = cryptico.publicKeyString(myRSAkey);
+				 console.log("publicKeyString = "+publicKeyString);
+				 ws.send(publicKeyString);
 			}
 			function serverResponseHandler(evt)
 			{
-				var received_msg = evt.data;
+				/*var received_msg = evt.data;
 				console.log("Server response:"+received_msg);
 				if (isFirstConnect)
 				{	
 					eval(received_msg);
+					secretPassphrase=String((new Date()).getMilliseconds());
+					messageKey=CryptoJS.enc.Utf8.parse(secretPassphrase);
+					iv=CryptoJS.enc.Utf8.parse(secretPassphrase);
+					console.log("secretPassphrase="+secretPassphrase);
+					console.log("messageKey="+messageKey);
+					console.log("iv="+iv);
+					
+					console.log("aesKey="+aesKey);
+					aesKey=keyCoder.encode(secretPassphrase);
+					console.log("Encoded aesKey="+aesKey);
+					ws.send(aesKey);
 					isFirstConnect=false;
 				}
 				else
 				{
 					console.log(coder.decode(received_msg));	
-				}
+				}*/
 			}
 			function sendSomething()
 			{
-				ws.send(coder.encode("周五晚舉行嘅世界盃決賽周分組賽抽籤，搵到英格蘭名宿連尼加擔任主持，當然都唔少得靚女壓陣，今次出任女主持嘅係俄羅斯著名體育主播Maria Komandnaya，呢位29歲靚女經常以性感裝束示人，搵佢主持肯定有睇頭！不過有伊朗球迷就呼籲FIFA實施「限奶令」，以免Maria着得太Sexy令佢哋睇唔到抽籤直播！Maria早前喺社交網宣布會同連尼加一齊主持抽籤後，有網民留言：「我係伊朗人，我哋電視台有好嚴格限制，佢哋會審查你嘅相片，如果方便嘅話，希望你到時會揀件合適嘅晚裝，否則我哋可能睇唔到直播！」事實上，Maria社交網有唔少低胸衫相，亦為雜誌影過唔少性感照。Maria除咗夠省鏡，佢做體育記者亦超過10年，又係著名足球節目主播，對球壇係非常熟悉。"));
+				//ws.send(coder.encode("周五晚舉行嘅世界盃決賽周分組賽抽籤，搵到英格蘭名宿連尼加擔任主持，當然都唔少得靚女壓陣，今次出任女主持嘅係俄羅斯著名體育主播Maria Komandnaya，呢位29歲靚女經常以性感裝束示人，搵佢主持肯定有睇頭！不過有伊朗球迷就呼籲FIFA實施「限奶令」，以免Maria着得太Sexy令佢哋睇唔到抽籤直播！Maria早前喺社交網宣布會同連尼加一齊主持抽籤後，有網民留言：「我係伊朗人，我哋電視台有好嚴格限制，佢哋會審查你嘅相片，如果方便嘅話，希望你到時會揀件合適嘅晚裝，否則我哋可能睇唔到直播！」事實上，Maria社交網有唔少低胸衫相，亦為雜誌影過唔少性感照。Maria除咗夠省鏡，佢做體育記者亦超過10年，又係著名足球節目主播，對球壇係非常熟悉。"));
 			}
-			function Coder(messageKey,ivText,privateKey,modulus)
-			{
-				keyCoder=new KeyCoder("",privateKey,modulus);
-				messageKey=Utility.stringReverse(keyCoder.decode(messageKey));
-				ivText=Utility.stringReverse(keyCoder.decode(ivText));
-				var messageCoder=new MessageCoder(messageKey,ivText);
-				this.encode=function(plainText)
-							{
-								return messageCoder.encode(plainText);
-							}
-				this.decode=function (encodedText)
-							{
-								return messageCoder.decode(encodedText);
-							}
-			}
-			function MessageCoder(key,iv)
-			{
-				var ivArray=CryptoJS.enc.Base64.parse(iv);
-				var keyArray=CryptoJS.enc.Base64.parse(key);
-				this.encode=function(plainText)
-							{
-								var result;
-								var encoded=CryptoJS.AES.encrypt(plainText,
-															 keyArray,
-															 {
-																	iv: ivArray,
-																	mode: CryptoJS.mode.CTR,
-																	padding: CryptoJS.pad.NoPadding
-															  });
-								result=encoded.ciphertext.toString(CryptoJS.enc.Base64);
-								return  result;
-							}
-				this.decode=function (encodedText)
-							{
-								var encryptedArray=CryptoJS.enc.Base64.parse(encodedText);
-								var decrypted = CryptoJS.AES.decrypt(
-												{ ciphertext:encryptedArray},
-												keyArray, 
-												{
-													iv: ivArray,
-													mode: CryptoJS.mode.CTR,
-													padding: CryptoJS.pad.NoPadding
-												});
-					 
-								// 转换为 utf8 字符串
-								decrypted = CryptoJS.enc.Utf8.stringify(decrypted);
-								return decrypted;
-							}
-			}
-		</script>
+			</script>
 	</head>
 	<body>
 		<button onclick="connect()">Connect</button>
