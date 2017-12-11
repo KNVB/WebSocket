@@ -69,6 +69,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     		logger.debug("ivText={}",ivText);
     		Cipher rsaCipher;
     		rsaCipher = Cipher.getInstance("RSA");
+    		request=request.replaceAll("-----BEGIN PUBLIC KEY-----\n", "");
+    		request=request.replaceAll("\n-----END PUBLIC KEY-----", "");
     		byte[] publicBytes = Base64.decode(request);
     		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
     		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
