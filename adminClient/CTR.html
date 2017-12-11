@@ -1,0 +1,41 @@
+<html>
+<head>
+<script src="js/base64.js"></script>
+<script src="js/cryptojs/rollups/aes.js"></script>
+<script src="js/cryptojs/components/mode-ctr-min.js"></script>
+<script language=javascript>
+var encoded={"key":"K7Be6aXCXJgo1NLZGZ5aruQ3mzbu46NWaYTpeky14yc=","iv":"QqujYvyuJogwKxdwIzwJ6w==","encodedText":"aO6BuY+Xa4sVC7dG1PzVw+8UZWButorqZHKgJcU6pbii88GuMhr2qifp2Dq4rDdjalsHC1ZAR1IHdVgC4e2Q4gFvd1T/AKWqqpcY22lowJIPy4ty4S4HFt6p8xgd72nX6M0GcNrvVvWkfCEMqk5z4BDpRvhtd764hS9Uche2JI+qdsETn9DsgBKOk13+Or+7XXPwbQ0gAkZOHj8HLMCmqlkI8MoIXHZ8l2pRPTAjut7N4AhAfmAjmdu79eyRUosyyMa7o34yasKqAKTOREmbNX/Qd0GSp33a+xAv4Lxz0y90mlLj7tyZ5+VSjSxM5jeNIadRuaDQtY+sP6MlWuP5KnjwZKOYINi7wIauqiqDCyK6HSXyjC9NEHZiKtlTK5RU"};
+// mode 支持 CBC、CFB、CTR、ECB、OFB, 默认 CBC
+// padding 支持 Pkcs7、AnsiX923、Iso10126
+// 、NoPadding、ZeroPadding, 默认 Pkcs7, 即 Pkcs5
+var encryptedArray=CryptoJS.enc.Base64.parse(encoded.encodedText);
+ivArray=CryptoJS.enc.Base64.parse(encoded.iv);
+keyArray=CryptoJS.enc.Base64.parse(encoded.key);
+var decrypted = CryptoJS.AES.decrypt(
+	{ ciphertext:encryptedArray},
+	keyArray, 
+	{
+		iv: ivArray,
+		mode: CryptoJS.mode.CTR,
+		padding: CryptoJS.pad.Pkcs7
+	});
+ 
+// 转换为 utf8 字符串
+decrypted = CryptoJS.enc.Utf8.stringify(decrypted);
+console.log(decrypted);
+// 引入其他加密模式, 填充模式需要引入对应的 js 文件
+/*
+cryptojs/components/mode-cfb-min.js
+cryptojs/components/mode-ctr-min.js
+cryptojs/components/mode-ecb-min.js
+cryptojs/components/mode-ofb-min.js
+cryptojs/components/pad-ansix923-min.js
+cryptojs/components/pad-iso10126-min.js
+cryptojs/components/pad-iso97971-min.js
+cryptojs/components/pad-nopadding-min.js
+*/
+</script>
+</head>
+<body>
+</body>
+</html>

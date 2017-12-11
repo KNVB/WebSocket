@@ -1,0 +1,56 @@
+<html>
+<script src="js/cryptojs/components/core-min.js"></script>
+<script src="js/cryptojs/components/md5-min.js"></script>
+<script src="js/cryptojs/components/evpkdf-min.js"></script>
+<script src="js/cryptojs/components/enc-base64-min.js"></script>
+<script src="js/cryptojs/rollups/aes.js"></script>
+
+<script src="js/cryptojs/components/mode-ctr-min.js"></script>
+<script src="js/cryptojs/components/mode-cfb-min.js"></script>
+<script src="js/cryptojs/components/mode-ecb-min.js"></script>
+<script src="js/cryptojs/components/mode-ofb-min.js"></script>
+
+
+<script language=javascript>
+var key="hlnUjh4GM1PegSzl13YFQgI5+I1qcbsmqlBV8vDsVy0=";
+var iv="ZkqiRuDS7YUrjZMLRr/gfQ==";
+var encryptedText="HFROj40Qh9YagJAS+7saN2/ugqszCPpmjT9Qwy2yt9dCntSbpbYqTt/tW0ju5QO614+S9zQyOdBXFKtNdDew9Ouo9YkmRgRkjY7NNGyVbt+Z5CYCgcwpRmNUuH7Fqyat5H3hFSUi05UyLLA6lIa47wyP7jKsq0rtj1yHth8qN06aisB18s4Cf9YBPbUM72qXS+IcpKLMWEVVw7Q0qA91WRCt9y93SptNUme75D/qCKyym20UJ5f0ZCgijOnnsbWJKci1R179qZ8UthFBjqcZm88VmV1UuA7OsAvzxsyA7iVtwsf9u6UnrlOtoMTl41Q5nLod4unkdbomrXb6hDKhV9ThtCy1ZWPFHhKbEAPMdzUnmmBSwcuGSTKvdPJeHAWH";
+function decrypt()
+{
+	var decrypted = CryptoJS.AES.decrypt(encryptedText, key, {
+	    iv: iv,
+	    mode: CryptoJS.mode.CTR,
+	    padding: CryptoJS.pad.Pkcs5
+	});
+	decrypted = CryptoJS.enc.Utf8.stringify(decrypted);
+	console.log(decrypted);
+}
+function base64ToByteArray(base64String) {
+    try {            
+        var sliceSize = 1024;
+        var byteCharacters = atob(base64String);
+        var bytesLength = byteCharacters.length;
+        var slicesCount = Math.ceil(bytesLength / sliceSize);
+        var byteArrays = new Array(slicesCount);
+
+        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+            var begin = sliceIndex * sliceSize;
+            var end = Math.min(begin + sliceSize, bytesLength);
+
+            var bytes = new Array(end - begin);
+            for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+                bytes[i] = byteCharacters[offset].charCodeAt(0);
+            }
+            byteArrays[sliceIndex] = new Uint8Array(bytes);
+        }
+        return byteArrays;
+    } catch (e) {
+        console.log("Couldn't convert to byte array: " + e);
+        return undefined;
+    }
+}
+</script>
+<body>
+	<button onclick="decrypt()">Decode</button>
+</body>
+</html>
