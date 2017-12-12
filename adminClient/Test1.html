@@ -32,29 +32,28 @@
 			}
 			function sendGreetingMessage()
 			{
-				// ws.send("Hello");
+				 ws.send("Hello");
 			}
 			function serverResponseHandler(evt)
 			{
-				/*var received_msg = evt.data;
+				var received_msg = evt.data;
 				console.log("Server response:"+received_msg);
 				if (isFirstConnect)
 				{	
 					eval(received_msg);
-					secretPassphrase=String((new Date()).getMilliseconds());
+					secretPassphrase="Hello";
 					messageKey=CryptoJS.enc.Utf8.parse(secretPassphrase);
 					iv=CryptoJS.enc.Utf8.parse(secretPassphrase);
 					console.log("secretPassphrase="+secretPassphrase);
 					console.log("messageKey="+messageKey);
 					console.log("iv="+iv);
 					
-					console.log("aesKey="+aesKey);
 					aesKey=keyCoder.encode(secretPassphrase);
 					console.log("Encoded aesKey="+aesKey);
 					ws.send(aesKey);
 					isFirstConnect=false;
 				}
-				else
+				/*else
 				{
 					console.log(coder.decode(received_msg));	
 				}*/
