@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-158.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-158.jar"/>
+	<classpathentry kind="lib" path="lib/bctls-jdk15on-158.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
