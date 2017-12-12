@@ -75,8 +75,16 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
     		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
     		rsaCipher.init(Cipher.ENCRYPT_MODE,keyFactory.generatePublic(keySpec));
-    		//byte[] ciphertext = rsaCipher.doFinal(data);
+    		responseString ="{\"messageKey\":\""+messageKey+"\",";
+    		responseString+="\"ivText\":\""+ivText+"\"}";
     		
+    		responseString =new String(Base64.encode(rsaCipher.doFinal(responseString.getBytes("UTF-8"))));
+    		ctx.channel().writeAndFlush(new TextWebSocketFrame(responseString));
+    		isFirstConnect=false;
+        }
+        else
+        {
+        	logger.debug("Decoded request="+messageCoder.decode(request));
         }
         /*if (request.equals("Hello"))
         {
