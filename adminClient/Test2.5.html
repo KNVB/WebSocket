@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<script>
+			var ws = null;
+			window.onload=function()
+						{
+							ws = new WebSocket("wss://echo.websocket.org");
+
+							ws.onopen = function(evt) { 
+							  console.log("Connection open ..."); 
+							  ws.send("Hello WebSockets!");
+							  getMsg().then(function(evt)
+											{
+												console.log( "Received Message: " + evt.data);
+												ws.send("WebSockets 123");
+												getMsg().then(function(evt)
+																{
+																	console.log( "Received Message: " + evt.data);
+																	ws.close();
+																});
+											});
+							 
+							  
+							};
+
+							/*ws.onmessage = function(evt) {
+							  console.log( "Received Message: " + evt.data);
+							  ws.close();
+							};*/
+
+							ws.onclose = function(evt) {
+							  console.log("Connection closed.");
+							};      
+
+
+						}
+			function getMsg() {
+				console.log(new Date());
+				return new Promise((resolve, reject) => {
+					ws.onmessage = (e) => {
+						   resolve(e);
+					}
+				})
+			}			
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

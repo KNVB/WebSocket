@@ -84,7 +84,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         }
         else
         {
+        	responseString=messageCoder.encode("陳大文");
         	logger.debug("Decoded request="+messageCoder.decode(request));
+        	ctx.channel().writeAndFlush(new TextWebSocketFrame(responseString));
         }
         /*if (request.equals("Hello"))
         {
