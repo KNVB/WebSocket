@@ -39,14 +39,9 @@
 															var decodedServerResponseMessage = self.keyCoder.decrypt(serverResponseMessage);
 															$(self.serverResponse).val($(self.serverResponse).val()+"decoded AES key="+decodedServerResponseMessage+"\n");
 															var aesKey=JSON.parse(decodedServerResponseMessage);
-															//console.log(aesKey.messageKey,aesKey.ivText);
 															self.messageCoder=new MessageCoder(aesKey.messageKey,aesKey.ivText);
 														});
 									}
-					/*this.ws.onmessage=function (event)
-										{
-											self.serverResponseHandler(event);
-										}*/
 				}
 				disConnect()
 				{
@@ -70,29 +65,6 @@
 					$(this.status).val($(this.status).val()+"Public key="+this.keyCoder.getPublicKey()+" sent\n");
 					this.keyCoder.setPrivateKey(this.keyCoder.getPrivateKey());
 				}
-				/*
-				serverResponseHandler(evt)
-				{
-					var serverResponseMessage = evt.data;
-					console.log("Server response:"+serverResponseMessage);
-					// Now decrypt the crypted text with the private key.
-					
-					
-					if (this.isFirstConnect)
-					{	
-						var decodedServerResponseMessage = this.keyCoder.decrypt(serverResponseMessage);
-						$(this.serverResponse).val($(this.serverResponse).val()+"decoded AES key="+decodedServerResponseMessage+"\n");
-						var aesKey=JSON.parse(decodedServerResponseMessage);
-						//console.log(aesKey.messageKey,aesKey.ivText);
-						this.messageCoder=new MessageCoder(aesKey.messageKey,aesKey.ivText);
-						this.isFirstConnect=false;
-					}
-					else
-					{
-						//serverResponse.value+=messageCoder.decode(serverResponseMessage);	
-						$(this.serverResponse).val($(this.serverResponse).val()+this.messageCoder.decode(serverResponseMessage)+"\n");
-					}
-				}*/
 				sendMessage(message)
 				{
 					var self=this;
@@ -116,7 +88,7 @@
 							resolve(e);
 						}
 					})
-				}			
+				}
 			}
 			
 			function connect()
