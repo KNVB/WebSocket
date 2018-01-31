@@ -19,7 +19,6 @@
 				{
 					this.ws;
 					this.messageCoder;
-					this.decodedMessage;
 					this.url=url;
 					this.isFirstConnect=true;
 					this.status=$("#status");
@@ -34,13 +33,15 @@
 					this.ws.onopen=function()
 									{	
 										self.sendGreetingMessage();
-										self.initCoder().then(function()
-																{
-																	if (self.messageCoder!=null)
-																		console.log("Initialize messageCoder successfully");
-																	else
-																		console.log("Initialize messageCoder failed.");
-																});															  
+										self.getMsg().then(function(evt)
+														{
+															var serverResponseMessage = evt.data;
+															var decodedServerResponseMessage = self.keyCoder.decrypt(serverResponseMessage);
+															$(self.serverResponse).val($(self.serverResponse).val()+"decoded AES key="+decodedServerResponseMessage+"\n");
+															var aesKey=JSON.parse(decodedServerResponseMessage);
+															//console.log(aesKey.messageKey,aesKey.ivText);
+															self.messageCoder=new MessageCoder(aesKey.messageKey,aesKey.ivText);
+														});
 									}
 				}
 				disConnect()
@@ -65,43 +66,30 @@
 					$(this.status).val($(this.status).val()+"Public key="+this.keyCoder.getPublicKey()+" sent\n");
 					this.keyCoder.setPrivateKey(this.keyCoder.getPrivateKey());
 				}
-				sendMessage(message,callBack)
+				sendMessage(message)
 				{
 					var self=this;
-					
 					this.ws.send(this.messageCoder.encode(message));
 					$(this.status).val($(this.status).val()+"Message="+message+" sent\n");
-					this.getServerResponse().then(function(data)
-											{
-												callBack(data);
-											});											
+					this.getMsg().then(function(evt)
+										{
+											var serverResponseMessage = evt.data;
+											console.log("Server response:"+serverResponseMessage);
+											var message=self.messageCoder.decode(serverResponseMessage);
+											$(self.serverResponse).val($(self.serverResponse).val()+message+"\n");
+										});
 				}
-				getServerResponse()
-				{
-					var self=this;
-					return new Promise((resolve, reject) =>{
-							self.ws.onmessage = (e) =>{
-								var serverResponseMessage = e.data;
-								resolve(self.messageCoder.decode(serverResponseMessage));
-							}
-						});
-				}
-				initCoder()
+				getMsg() 
 				{
 					var self=this;
 					
 					return new Promise((resolve, reject) => {
 						self.ws.onmessage = (e) => {
 							console.log("Server responsed received at:"+new Date());	
-							var serverResponseMessage = e.data;
-							var decodedServerResponseMessage = self.keyCoder.decrypt(serverResponseMessage);
-							$(self.serverResponse).val($(self.serverResponse).val()+"decoded AES key="+decodedServerResponseMessage+"\n");
-							var aesKey=JSON.parse(decodedServerResponseMessage);
-							self.messageCoder=new MessageCoder(aesKey.messageKey,aesKey.ivText);
-							resolve();
+							resolve(e);
 						}
 					})
-				}							
+				}
 			}
 			
 			function connect()
@@ -111,12 +99,7 @@
 			}
 			function sendSomething()
 			{
-				adminServer.sendMessage("世界盃決賽周分組賽抽籤",gg);
-			
-			}
-			function gg(text)
-			{
-				console.log("I am "+text);
+				adminServer.sendMessage("世界盃決賽周分組賽抽籤");
 			}
 			function disConnect()
 			{
